@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  pubsub:
+    image: singularities/pubsub-emulator
+    environment:
+      - PUBSUB_PROJECT_ID=myproject
+      - PUBSUB_LISTEN_ADDRESS=pubsub:8085
+    ports:
+      - "8085:8085"
+    stop_signal: SIGKILL # stubborn
+  cloud-function:
+    image: node:14-alpine
+    depends_on: 
+      - pubsub
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/work
+    working_dir: /work
+    stop_signal: SIGKILL # stubborn
+    entrypoint: sh -c 'npm i && npm start'
+  test:
+    image: node:14-alpine
+    depends_on: 
+      - cloud-function
+    volumes:
+      - ./src:/work
+    working_dir: /work
+    stop_signal: SIGKILL # stubborn
+    command: sh -c 'npm i && npm run test'
