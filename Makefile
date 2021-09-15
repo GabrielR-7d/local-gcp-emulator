@@ -1,4 +1,7 @@
+SHELL := bash
+.ONESHELL:
 .SILENT:
+.SHELLFLAGS := -euo pipefail -c
 
 define docker-compose-run
 	docker-compose run --rm $(1) && exit_status=$$? || exit_status=$$?
@@ -8,6 +11,5 @@ define docker-compose-run
 endef
 
 test:
-	docker-compose run --rm test
-	$(docker-compose-down)
+	$(call docker-compose-run, test)
 .PHONY: test
